@@ -32,6 +32,5 @@
       [%title =gid =title]
   ==
 ::
-+$  display  $~([[%html ~] [[%head ~] ~] [[%body ~] ~] ~] manx)
-+$  current-url  @t
++$  page  [sect=@t gid=(unit gid) success=?]
 --

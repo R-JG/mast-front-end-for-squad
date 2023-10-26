@@ -1,11 +1,11 @@
 /-  *squad
-/+  default-agent, dbug, agentio, mast
+/+  default-agent, dbug, agentio
 /=  index  /app/squad/index
 |%
 +$  versioned-state
   $%  state-0
   ==
-+$  state-0  [%0 app=[=squads =acls =members =page] =display =current-url]
++$  state-0  [%0 =squads =acls =members =page]
 +$  card  card:agent:gall
 --
 ::
@@ -17,9 +17,6 @@
 +*  this  .
     def   ~(. (default-agent this %.n) bol)
     io    ~(. agentio bol)
-    yards  %-  limo  :~
-      ['/squad' index]
-    ==
 ++  on-init
   ^-  (quip card _this)
   :_  this
@@ -40,10 +37,8 @@
     ?+  mark  (on-poke:def mark vase)
       %squad-do             (handle-action !<(act vase))
       %handle-http-request  (handle-http !<([@ta inbound-request:eyre] vase))
-      %json                 (handle-json !<(json vase))
     ==
   [cards this]
-  ::
   ++  handle-http
     |=  [rid=@ta req=inbound-request:eyre]
     ^-  (quip card _state)
@@ -62,139 +57,197 @@
       (some (as-octs:mimes:html '<h1>405 Method Not Allowed</h1>'))
     ::
         %'GET'
-      =/  rigged-sail  (rig:mast yards url.request.req app.state)
-      :-  (plank:mast rid our.bol "squad" "/display-updates" rigged-sail)
-      state(display rigged-sail, current-url url.request.req)
+      :_  state(page *^page)
+      (make-200 rid (index bol squads acls members page))
     ::
-    ==
-  ::
-  ++  handle-json  
-    |=  json-req=json
-    ^-  (quip card _state)
-    =/  client-poke  (parse:mast json-request)
-    ?~  tags.client-poke  !!
-    ?~  t.tags.client-poke  !!
-    ?+  [i.tags.client-poke i.t.tags.client-poke]  !!
-      :: to do: make all the sig checks update the display with prompt messages instead of crashing
-      [%click %join-squad]
-        =/  target=(unit @t)  (~(get by data.client-poke) '/join-gid-input/value')
-        ?~  target  !!
+        %'POST'
+      ?~  body.request.req  [(index-redirect rid '/squad') state]
+      =/  query=(unit (list [k=@t v=@t]))
+        (rush q.u.body.request.req yquy:de-purl:html)
+      ?~  query  [(index-redirect rid '/squad') state]
+      =/  kv-map=(map @t @t)  (~(gas by *(map @t @t)) u.query)
+      =/  =path
+        %-  tail
+        %+  rash  url.request.req
+        ;~(sfix apat:de-purl:html yquy:de-purl:html)
+      ?+    path  [(index-redirect rid '/squad') state]
+          [%squad %join ~]
+        =/  target=(unit @t)  (~(get by kv-map) 'target-squad')
+        ?~  target
+          :_  state(page ['join' ~ |])
+          (index-redirect rid '/squad#join')
         =/  u-gid=(unit gid)
           %+  rush  u.target
           %+  ifix  [(star ace) (star ace)]
           ;~(plug ;~(pfix sig fed:ag) ;~(pfix fas sym))
-        ?~  u-gid  !!
-        ?:  =(our.bol host.u.u-gid)  !!
+        ?~  u-gid
+          :_  state(page ['join' ~ |])
+          (index-redirect rid '/squad#join')
+        ?:  =(our.bol host.u.u-gid)
+          :_  state(page ['join' ~ &])
+          (index-redirect rid '/squad#join')
         =^  cards  state  (handle-action %join u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
-        :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
-      [%click %create-squad]
-        ?.  (~(has by data.client-poke) '/create-title-input/value')  !!
-        =/  title=@t  (~(got by data.client-poke) '/create-title-input/value')
-        =/  pub=@t  (~(get by data.client-poke) '/is-public-checkbox/checked')
-        =^  cards  state  (handle-action %new title ?:(=('true' pub) %.y %.n))
-        =/  rigged-sail  (rig:mast yards current-url app.state)
-        :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
-      [%click %change-title]
-        =/  vals=(unit [gid-str=@t =title])  %+  both 
-          (~(get by data.client-poke) '/change-title-gid-input/value') 
-          (~(get by data.client-poke) '/change-title-input/value')
-        ?~  vals  !!
+        :_  state(page ['join' ~ &])
+        (weld cards (index-redirect rid '/squad#join'))
+      ::
+          [%squad %new ~]
+        ?.  (~(has by kv-map) 'title')
+          :_  state(page ['new' ~ |])
+          (index-redirect rid '/squad#new')
+        =/  title=@t  (~(got by kv-map) 'title')
+        =/  pub=?  (~(has by kv-map) 'public')
+        =^  cards  state  (handle-action %new title pub)
+        :_  state(page ['new' ~ &])
+        (weld cards (index-redirect rid '/squad#new'))
+      ::
+          [%squad %title ~]
+        =/  vals=(unit [gid-str=@t =title])
+          (both (~(get by kv-map) 'gid') (~(get by kv-map) 'title'))
+        ?~  vals
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
         =/  u-gid=(unit gid)
           %+  rush  gid-str.u.vals
           ;~(plug fed:ag ;~(pfix cab sym))
-        ?~  u-gid  !!
+        ?~  u-gid
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
         =^  cards  state  (handle-action %title u.u-gid title.u.vals)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
-        :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
-      [%click %delete-squad]
-        ?.  (~(has by data.client-poke) '/delete-gid-input/value')  !!
+        :_  state(page ['title' u-gid &])
+        (weld cards (index-redirect rid (crip "/squad#{(trip gid-str.u.vals)}")))
+      ::
+          [%squad %delete ~]
+        ?.  (~(has by kv-map) 'gid')
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
         =/  u-gid=(unit gid)
-          %+  rush  (~(got by data.client-poke) '/delete-gid-input/value')
+          %+  rush  (~(got by kv-map) 'gid')
           ;~(plug fed:ag ;~(pfix cab sym))
-        ?~  u-gid  !!
-        ?.  =(our.bol host.u.u-gid)  !!
+        ?~  u-gid
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
+        ?.  =(our.bol host.u.u-gid)
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
         =^  cards  state  (handle-action %del u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
-        :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
-      [%click %leave-squad]
-        ?.  (~(has by data.client-poke) '/leave-gid-input/value')  !!
+        :_  state(page ['generic' ~ &])
+        (weld cards (index-redirect rid '/squad'))
+      ::
+          [%squad %leave ~]
+        ?.  (~(has by kv-map) 'gid')
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
         =/  u-gid=(unit gid)
-          %+  rush  (~(got by data.client-poke) '/leave-gid-input/value')
+          %+  rush  (~(got by kv-map) 'gid')
           ;~(plug fed:ag ;~(pfix cab sym))
-        ?~  u-gid  !!
-        ?:  =(our.bol host.u.u-gid)  !!
+        ?~  u-gid
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
+        ?:  =(our.bol host.u.u-gid)
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
         =^  cards  state  (handle-action %leave u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
-        :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
-      [%click %kick-from-squad]
-        =/  vals=(unit [gid-str=@t ship-str=@t])  %+  both 
-          (~(get by data.client-poke) '/kick-gid-input/value') 
-          (~(get by data.client-poke) '/kick-ship-input/value')
-        ?~  vals  !!
+        :_  state(page ['generic' ~ &])
+        (weld cards (index-redirect rid '/squad'))
+      ::
+          [%squad %kick ~]
+        =/  vals=(unit [gid-str=@t ship-str=@t])
+          (both (~(get by kv-map) 'gid') (~(get by kv-map) 'ship'))
+        ?~  vals
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
         =/  u-gid=(unit gid)
           %+  rush  gid-str.u.vals
           ;~(plug fed:ag ;~(pfix cab sym))
-        ?~  u-gid  !!
-        ?.  =(host.u.u-gid our.bol)  !!
+        ?~  u-gid
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
+        ?.  =(host.u.u-gid our.bol)
+          :_  state(page ['kick' `u.u-gid |])
+          (index-redirect rid (crip "/squad#acl:{(trip gid-str.u.vals)}"))
         =/  u-ship=(unit @p)
           %+  rush  ship-str.u.vals
           %+  ifix  [(star ace) (star ace)]
           ;~(pfix sig fed:ag)
-        ?~  u-ship  !!
-        ?:  =(u.u-ship our.bol)  !!
+        ?~  u-ship
+          :_  state(page ['kick' `u.u-gid |])
+          (index-redirect rid (crip "/squad#acl:{(trip gid-str.u.vals)}"))
+        ?:  =(u.u-ship our.bol)
+          :_  state(page ['kick' `u.u-gid |])
+          (index-redirect rid (crip "/squad#acl:{(trip gid-str.u.vals)}"))
         =^  cards  state  (handle-action %kick u.u-gid u.u-ship)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
-        :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
-      [%click %allow-ship]
-        =/  vals=(unit [gid-str=@t ship-str=@t])  %+  both 
-          (~(get by data.client-poke) '/allow-gid-input/value') 
-          (~(get by data.client-poke) '/allow-ship-input/value')
-        ?~  vals  !!
+        :_  state(page ['kick' `u.u-gid &])
+        %+  weld
+          cards
+        (index-redirect rid (crip "/squad#acl:{(trip gid-str.u.vals)}"))
+      ::
+          [%squad %allow ~]
+        =/  vals=(unit [gid-str=@t ship-str=@t])
+          (both (~(get by kv-map) 'gid') (~(get by kv-map) 'ship'))
+        ?~  vals
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
         =/  u-gid=(unit gid)
           %+  rush  gid-str.u.vals
           ;~(plug fed:ag ;~(pfix cab sym))
-        ?~  u-gid  !!
-        ?.  =(host.u.u-gid our.bol)  !!
+        ?~  u-gid
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
+        ?.  =(host.u.u-gid our.bol)
+          :_  state(page ['kick' `u.u-gid |])
+          (index-redirect rid (crip "/squad#acl:{(trip gid-str.u.vals)}"))
         =/  u-ship=(unit @p)
           %+  rush  ship-str.u.vals
           %+  ifix  [(star ace) (star ace)]
           ;~(pfix sig fed:ag)
-        ?~  u-ship  !!
+        ?~  u-ship
+          :_  state(page ['kick' `u.u-gid |])
+          (index-redirect rid (crip "/squad#acl:{(trip gid-str.u.vals)}"))
         =^  cards  state  (handle-action %allow u.u-gid u.u-ship)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
-        :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
-      [%click %make-public]
-        ?.  (~(has by data.client-poke) '/make-public-gid-input/value')  !!
+        :_  state(page ['kick' `u.u-gid &])
+        %+  weld
+          cards
+        (index-redirect rid (crip "/squad#acl:{(trip gid-str.u.vals)}"))
+      ::
+          [%squad %public ~]
+        ?.  (~(has by kv-map) 'gid')
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
         =/  u-gid=(unit gid)
-          %+  rush  (~(got by data.client-poke) '/make-public-gid-input/value')
+          %+  rush  (~(got by kv-map) 'gid')
           ;~(plug fed:ag ;~(pfix cab sym))
-        ?~  u-gid  !!
-        ?.  =(our.bol host.u.u-gid)  !!
+        ?~  u-gid
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
+        ?.  =(our.bol host.u.u-gid)
+          :_  state(page ['public' `u.u-gid |])
+          (index-redirect rid (crip "/squad#{(trip (~(got by kv-map) 'gid'))}"))
         =^  cards  state  (handle-action %pub u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
-        :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
-      [%click %make-private]
-        ?.  (~(has by data.client-poke) '/make-private-gid-input/value')  !!
+        :_  state(page ['public' `u.u-gid &])
+        %+  weld
+          cards
+        (index-redirect rid (crip "/squad#{(trip (~(got by kv-map) 'gid'))}"))
+      ::
+          [%squad %private ~]
+        ?.  (~(has by kv-map) 'gid')
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
         =/  u-gid=(unit gid)
-          %+  rush  (~(got by data.client-poke) '/make-private-gid-input/value')
+          %+  rush  (~(got by kv-map) 'gid')
           ;~(plug fed:ag ;~(pfix cab sym))
-        ?~  u-gid  !!
-        ?.  =(our.bol host.u.u-gid)  !!
+        ?~  u-gid
+          :_  state(page ['generic' ~ |])
+          (index-redirect rid '/squad')
+        ?.  =(our.bol host.u.u-gid)
+          :_  state(page ['public' `u.u-gid |])
+          (index-redirect rid (crip "/squad#{(trip (~(got by kv-map) 'gid'))}"))
         =^  cards  state  (handle-action %priv u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
-        :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
+        :_  state(page ['public' `u.u-gid &])
+        %+  weld
+          cards
+        (index-redirect rid (crip "/squad#{(trip (~(got by kv-map) 'gid'))}"))
+      ==
     ==
-  ::
   ++  handle-action
     |=  =act
     ^-  (quip card _state)
@@ -372,9 +425,6 @@
   --
 ::
 ++  on-watch
-  ::
-  :: add the /display-updates path 
-  ::
   |=  =path
   |^  ^-  (quip card _this)
   ?:  &(=(our.bol src.bol) ?=([%http-response *] path))
