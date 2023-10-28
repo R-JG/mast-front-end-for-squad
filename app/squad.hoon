@@ -1,11 +1,12 @@
 /-  *squad
 /+  default-agent, dbug, agentio, mast
 /=  index  /app/squad/index
+/=  css    /app/squad/css
 |%
 +$  versioned-state
   $%  state-0
   ==
-+$  state-0  [%0 app=[=squads =acls =members =page] =display =current-url]
++$  state-0  [%0 =squads =acls =members =component =display =current-url]
 +$  card  card:agent:gall
 --
 ::
@@ -61,8 +62,10 @@
         ==
       (some (as-octs:mimes:html '<h1>405 Method Not Allowed</h1>'))
     ::
-        %'GET'
-      =/  rigged-sail  (rig:mast yards url.request.req app.state)
+    %'GET'
+      ?:  =('/squad/css' url.request.req)
+        [(make-css-response:mast rid css) state]
+      =/  rigged-sail  (rig:mast yards url.request.req [bol squads acls members component])
       :-  (plank:mast rid our.bol "squad" "/display-updates" rigged-sail)
       state(display rigged-sail, current-url url.request.req)
     ::
@@ -71,7 +74,7 @@
   ++  handle-json  
     |=  json-req=json
     ^-  (quip card _state)
-    =/  client-poke  (parse:mast json-request)
+    =/  client-poke  (parse:mast json-req)
     ?~  tags.client-poke  !!
     ?~  t.tags.client-poke  !!
     ?+  [i.tags.client-poke i.t.tags.client-poke]  !!
@@ -85,114 +88,138 @@
           ;~(plug ;~(pfix sig fed:ag) ;~(pfix fas sym))
         ?~  u-gid  !!
         ?:  =(our.bol host.u.u-gid)  !!
-        =^  cards  state  (handle-action %join u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
+        =^  cards  state  
+          =.  status-message.component  "successfully joined squad: {(trip name.u.u-gid)}"
+            (handle-action %join u.u-gid)
+        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %create-squad]
         ?.  (~(has by data.client-poke) '/create-title-input/value')  !!
         =/  title=@t  (~(got by data.client-poke) '/create-title-input/value')
-        =/  pub=@t  (~(get by data.client-poke) '/is-public-checkbox/checked')
-        =^  cards  state  (handle-action %new title ?:(=('true' pub) %.y %.n))
-        =/  rigged-sail  (rig:mast yards current-url app.state)
+        =/  pub=(unit @t)  (~(get by data.client-poke) '/is-public-checkbox/checked')
+        =/  is-pub=?  ?~(pub %.n ?:(=('true' u.pub) %.y %.n))
+        =^  cards  state
+          =.  status-message.component  "successfully created squad: {(trip title)}"
+            (handle-action %new title is-pub)
+        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %change-title]
-        =/  vals=(unit [gid-str=@t =title])  %+  both 
-          (~(get by data.client-poke) '/change-title-gid-input/value') 
-          (~(get by data.client-poke) '/change-title-input/value')
-        ?~  vals  !!
+        ?~  t.t.tags.client-poke  !!
         =/  u-gid=(unit gid)
-          %+  rush  gid-str.u.vals
+          %+  rush  i.t.t.tags.client-poke
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
-        =^  cards  state  (handle-action %title u.u-gid title.u.vals)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
+        =/  u-title=(unit title)  
+          (~(get by data.client-poke) (crip "/change-title-input-{(trip i.t.t.tags.client-poke)}/value")) 
+        ?~  u-title  !!
+        =^  cards  state  (handle-action %title u.u-gid u.u-title)
+        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %delete-squad]
-        ?.  (~(has by data.client-poke) '/delete-gid-input/value')  !!
+        ?~  t.t.tags.client-poke  !!
         =/  u-gid=(unit gid)
-          %+  rush  (~(got by data.client-poke) '/delete-gid-input/value')
+          %+  rush  i.t.t.tags.client-poke
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
         ?.  =(our.bol host.u.u-gid)  !!
         =^  cards  state  (handle-action %del u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
+        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %leave-squad]
-        ?.  (~(has by data.client-poke) '/leave-gid-input/value')  !!
+        ?~  t.t.tags.client-poke  !!
         =/  u-gid=(unit gid)
-          %+  rush  (~(got by data.client-poke) '/leave-gid-input/value')
+          %+  rush  i.t.t.tags.client-poke
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
         ?:  =(our.bol host.u.u-gid)  !!
         =^  cards  state  (handle-action %leave u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
+        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
-      [%click %kick-from-squad]
-        =/  vals=(unit [gid-str=@t ship-str=@t])  %+  both 
-          (~(get by data.client-poke) '/kick-gid-input/value') 
-          (~(get by data.client-poke) '/kick-ship-input/value')
-        ?~  vals  !!
+      [%click %kick]
+        ?~  t.t.tags.client-poke  !!
+        ?~  t.t.t.tags.client-poke  !!
+        =/  source=tape  (trip i.t.t.t.tags.client-poke)
         =/  u-gid=(unit gid)
-          %+  rush  gid-str.u.vals
+          %+  rush  i.t.t.tags.client-poke
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
         ?.  =(host.u.u-gid our.bol)  !!
+        =/  u-ship-str=(unit @t)
+          (~(get by data.client-poke) (crip "/kick-ship-input-{(trip i.t.t.tags.client-poke)}-{source}/value"))
+        ?~  u-ship-str  !!
         =/  u-ship=(unit @p)
-          %+  rush  ship-str.u.vals
+          %+  rush  u.u-ship-str
           %+  ifix  [(star ace) (star ace)]
           ;~(pfix sig fed:ag)
         ?~  u-ship  !!
         ?:  =(u.u-ship our.bol)  !!
         =^  cards  state  (handle-action %kick u.u-gid u.u-ship)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
+        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
-      [%click %allow-ship]
-        =/  vals=(unit [gid-str=@t ship-str=@t])  %+  both 
-          (~(get by data.client-poke) '/allow-gid-input/value') 
-          (~(get by data.client-poke) '/allow-ship-input/value')
-        ?~  vals  !!
+      [%click %allow]
+        ?~  t.t.tags.client-poke  !!
+        ?~  t.t.t.tags.client-poke  !!
+        =/  source=tape  (trip i.t.t.t.tags.client-poke)
         =/  u-gid=(unit gid)
-          %+  rush  gid-str.u.vals
+          %+  rush  i.t.t.tags.client-poke
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
         ?.  =(host.u.u-gid our.bol)  !!
+        =/  u-ship-str=(unit @t)
+          (~(get by data.client-poke) (crip "/allow-ship-input-{(trip i.t.t.tags.client-poke)}-{source}/value"))
+        ?~  u-ship-str  !!
         =/  u-ship=(unit @p)
-          %+  rush  ship-str.u.vals
+          %+  rush  u.u-ship-str
           %+  ifix  [(star ace) (star ace)]
           ;~(pfix sig fed:ag)
         ?~  u-ship  !!
         =^  cards  state  (handle-action %allow u.u-gid u.u-ship)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
+        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %make-public]
-        ?.  (~(has by data.client-poke) '/make-public-gid-input/value')  !!
+        ?~  t.t.tags.client-poke  !!
         =/  u-gid=(unit gid)
-          %+  rush  (~(got by data.client-poke) '/make-public-gid-input/value')
+          %+  rush  i.t.t.tags.client-poke
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
         ?.  =(our.bol host.u.u-gid)  !!
         =^  cards  state  (handle-action %pub u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
+        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %make-private]
-        ?.  (~(has by data.client-poke) '/make-private-gid-input/value')  !!
+        ?~  t.t.tags.client-poke  !!
         =/  u-gid=(unit gid)
-          %+  rush  (~(got by data.client-poke) '/make-private-gid-input/value')
+          %+  rush  i.t.t.tags.client-poke
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
         ?.  =(our.bol host.u.u-gid)  !!
         =^  cards  state  (handle-action %priv u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url app.state)
+        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
+      [%click %select-squad]
+        ?~  t.t.tags.client-poke  !!
+        =/  u-gid=(unit gid)
+          %+  rush  i.t.t.tags.client-poke
+          ;~(plug fed:ag ;~(pfix cab sym))
+        ?~  u-gid  !!
+        =.  selected-squad.component   u.u-gid
+        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        :_  state(display rigged-sail)
+        (gust:mast /display-updates display.state rigged-sail)
+      [%click %close-status-modal]
+        =.  status-message.component  ""
+        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        :_  state(display rigged-sail)
+        (gust:mast /display-updates display.state rigged-sail)
     ==
   ::
   ++  handle-action
@@ -372,12 +399,11 @@
   --
 ::
 ++  on-watch
-  ::
-  :: add the /display-updates path 
-  ::
   |=  =path
   |^  ^-  (quip card _this)
   ?:  &(=(our.bol src.bol) ?=([%http-response *] path))
+    `this
+  ?:  &(=(our.bol src.bol) ?=([%display-updates *] path))
     `this
   ?:  ?=([%local %all ~] path)
     ?>  =(our.bol src.bol)

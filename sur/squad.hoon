@@ -34,4 +34,5 @@
 ::
 +$  display  $~([[%html ~] [[%head ~] ~] [[%body ~] ~] ~] manx)
 +$  current-url  @t
++$  component  [selected-squad=gid status-message=tape]
 --
