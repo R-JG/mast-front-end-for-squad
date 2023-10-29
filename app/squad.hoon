@@ -6,7 +6,7 @@
 +$  versioned-state
   $%  state-0
   ==
-+$  state-0  [%0 =squads =acls =members =component =display =current-url]
++$  state-0  [%0 =display =current-url =component =squads =acls =members]
 +$  card  card:agent:gall
 --
 ::
@@ -65,7 +65,7 @@
     %'GET'
       ?:  =('/squad/css' url.request.req)
         [(make-css-response:mast rid css) state]
-      =/  rigged-sail  (rig:mast yards url.request.req [bol squads acls members component])
+      =/  rigged-sail  (rig:mast yards url.request.req [bol component squads acls members])
       :-  (plank:mast rid our.bol "squad" "/display-updates" rigged-sail)
       state(display rigged-sail, current-url url.request.req)
     ::
@@ -78,7 +78,6 @@
     ?~  tags.client-poke  !!
     ?~  t.tags.client-poke  !!
     ?+  [i.tags.client-poke i.t.tags.client-poke]  !!
-      :: to do: make all the sig checks update the display with prompt messages instead of crashing
       [%click %join-squad]
         =/  target=(unit @t)  (~(get by data.client-poke) '/join-gid-input/value')
         ?~  target  !!
@@ -93,7 +92,7 @@
               input-reset-switch.component  !input-reset-switch.component
               ==
           (handle-action %join u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %create-squad]
@@ -106,7 +105,7 @@
               input-reset-switch.component  !input-reset-switch.component
               ==
           (handle-action %new title is-pub)
-        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %change-title]
@@ -123,7 +122,7 @@
               input-reset-switch.component  !input-reset-switch.component
               ==
           (handle-action %title u.u-gid u.u-title)
-        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %delete-squad]
@@ -136,7 +135,7 @@
         =^  cards  state  
           =.  status-message.component  "deleted squad: {(trip name.u.u-gid)}"
           (handle-action %del u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %leave-squad]
@@ -149,7 +148,7 @@
         =^  cards  state  
           =.  status-message.component  "left squad: {(trip name.u.u-gid)}"
         (handle-action %leave u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %kick]
@@ -171,11 +170,11 @@
         ?~  u-ship  !!
         ?:  =(u.u-ship our.bol)  !!
         =^  cards  state  
-          =:  status-message.component  "kicked: {(trip u.u-ship)} from: {(trip name.u.u-gid)}"
+          =:  status-message.component  "blacklisted: {<u.u-ship>} from: {(trip name.u.u-gid)}"
               input-reset-switch.component  !input-reset-switch.component
               ==
           (handle-action %kick u.u-gid u.u-ship)
-        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %allow]
@@ -196,11 +195,11 @@
           ;~(pfix sig fed:ag)
         ?~  u-ship  !!
         =^  cards  state  
-          =:  status-message.component  "allowed: {(trip u.u-ship)} into: {(trip name.u.u-gid)}"
+          =:  status-message.component  "whitelisted: {<u.u-ship>} for: {(trip name.u.u-gid)}"
               input-reset-switch.component  !input-reset-switch.component
               ==
           (handle-action %allow u.u-gid u.u-ship)
-        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %make-public]
@@ -213,7 +212,7 @@
         =^  cards  state
           =.  status-message.component  "made: {(trip name.u.u-gid)} public"
           (handle-action %pub u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %make-private]
@@ -226,7 +225,7 @@
         =^  cards  state
           =.  status-message.component  "made: {(trip name.u.u-gid)} private"
           (handle-action %priv u.u-gid)
-        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
       [%click %select-squad]
@@ -236,12 +235,12 @@
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
         =.  selected-squad.component   u.u-gid
-        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
         (gust:mast /display-updates display.state rigged-sail)
       [%click %close-status-modal]
         =.  status-message.component  ""
-        =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
+        =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
         (gust:mast /display-updates display.state rigged-sail)
     ==

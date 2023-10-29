@@ -55,14 +55,11 @@ a {
 a:hover {
   opacity: 0.8;
 }
-.none {
-  display: none;
-}
-.block {
-  display: block;
-}
 code, .code {
   font-family: "Source Code Pro", monospace;
+}
+.inline {
+  display: inline;
 }
 .bg-green {
   background-color: #12AE22;
@@ -87,24 +84,7 @@ input {
   padding: 12px;
   font-size: 12px;
   font-weight: 600;
-}
-.flex {
-  display: flex;
-}
-.col {
-  flex-direction: column;
-}
-.align-center {
-  align-items: center;
-}
-.justify-between {
-  justify-content: space-between;
-}
-.grow {
-  flex-grow: 1;
-}
-.inline {
-  display: inline;
+  min-width: 13rem;
 }
 .forms-section {
   padding-inline: 2rem;
@@ -118,6 +98,9 @@ input {
 }
 .join-component {
   display: flex;
+}
+#is-public-checkbox {
+  min-width: 0;
 }
 .status-modal {
   position: absolute;
@@ -141,6 +124,9 @@ input {
   padding-block: 0.2rem;
   font-size: 1.2rem;
   margin-left: 1rem;
+}
+.squads-section-null {
+  display: none;
 }
 .squads-heading {
   margin-top: 0;
@@ -173,9 +159,12 @@ input {
 .squad-content button, .squad-content summary {
   margin-block: 0.5rem;
 }
-@media screen and (max-width: 480px) {
+@media only screen and (max-width: 767px)  {
   main {
-    padding: 1rem;
+    flex-direction: column;
+  }
+  .squads-heading {
+    margin-top: 
   }
 }
 '''

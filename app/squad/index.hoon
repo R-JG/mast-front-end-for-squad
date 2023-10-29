@@ -1,5 +1,5 @@
 /-  *squad
-|=  [bol=bowl:gall =squads =acls =members =component]
+|=  [bol=bowl:gall =component =squads =acls =members]
 |^  ^-  manx
 ;html
   ;head
@@ -16,7 +16,8 @@
         ;h2: Create
         ;+  new-component
       ==
-      ;div.squads-section
+      ;div
+        =class  ?~(squads "squads-section-null" "squads-section")
         ;+  ?~  squads
               ;/("")
             ;h2.squads-heading: Squads
@@ -44,11 +45,7 @@
   ;div.join-component
     ;input
       =id           "join-gid-input"
-      =type         "text"
-      =name         "target-squad"
       =class        "code"
-      =size         "30"
-      =required     ""
       =placeholder  "~sampel-palnet/squad-name"
       =data-reset   <input-reset-switch.component>
       ;+  ;/("")
@@ -66,10 +63,6 @@
   ;div(class "new-form")
     ;input
       =id           "create-title-input"
-      =type         "text"
-      =name         "title"
-      =size         "30"
-      =required     ""
       =placeholder  "My squad"
       =data-reset   <input-reset-switch.component>
       ;+  ;/("")
@@ -78,9 +71,6 @@
       ;input
         =id     "is-public-checkbox"
         =type   "checkbox"
-        =style  "margin-right: 0.5rem"
-        =name   "public"
-        =value  "true"
         =data-reset   <input-reset-switch.component>
         ;+  ;/("")
       ==
@@ -136,10 +126,6 @@
     ;label(for input-id): title:
     ;input
       =id           input-id
-      =type         "text"
-      =name         "title"
-      =size         "30"
-      =required     ""
       =placeholder  "My Squad"
       =data-reset   <input-reset-switch.component>
       ;+  ;/("")
@@ -194,10 +180,6 @@
     ;div
       ;input
         =id           kick-allow-input-id
-        =type         "text"
-        =name         "ship"
-        =size         "30"
-        =required     ""
         =placeholder  "~sampel-palnet"
         =data-reset   <input-reset-switch.component>
         ;+  ;/("")
