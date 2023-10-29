@@ -8,26 +8,30 @@
     ;link(href "/squad/css", rel "stylesheet");
   ==
   ;body
+    ;+  (status-modal status-message.component)
     ;main
-      ;+  (status-modal status-message.component)
-      ;h2: Join
-      ;+  join-component
-      ;h2: Create
-      ;+  new-component
-      ;+  ?~  squads
-            ;/("")
-          ;h2: Squads
-      ;*  %+  turn
-            %+  sort  ~(tap by squads)
-            |=  [a=[* =title *] b=[* =title *]]
-            (aor title.a title.b)
-          squad-component
+      ;div.forms-section
+        ;h2: Join
+        ;+  join-component
+        ;h2: Create
+        ;+  new-component
+      ==
+      ;div.squads-section
+        ;+  ?~  squads
+              ;/("")
+            ;h2.squads-heading: Squads
+        ;*  %+  turn
+              %+  sort  ~(tap by squads)
+              |=  [a=[* =title *] b=[* =title *]]
+              (aor title.a title.b)
+            squad-component
+      ==
     ==
   ==
 ==
 ::
 ++  status-modal
-  |=  [txt=tape]
+  |=  txt=tape
   ^-  manx
   ?~  txt  ;div;
   ;div.status-modal
@@ -37,7 +41,7 @@
 ::
 ++  join-component
   ^-  manx
-  ;div
+  ;div.join-component
     ;input
       =id           "join-gid-input"
       =type         "text"
@@ -46,13 +50,14 @@
       =size         "30"
       =required     ""
       =placeholder  "~sampel-palnet/squad-name"
+      =data-reset   <input-reset-switch.component>
       ;+  ;/("")
     ==
     ;button
       =class        "bg-green-400 text-white" 
       =data-event   "/click/join-squad" 
       =data-return  "/join-gid-input/value"
-      Join
+      ;+  ;/  "Join"
     ==
   ==
 ::
@@ -66,26 +71,26 @@
       =size         "30"
       =required     ""
       =placeholder  "My squad"
+      =data-reset   <input-reset-switch.component>
       ;+  ;/("")
     ==
-    ;br;
-    ;div
+    ;div.new-component-checkbox
       ;input
         =id     "is-public-checkbox"
         =type   "checkbox"
         =style  "margin-right: 0.5rem"
         =name   "public"
         =value  "true"
+        =data-reset   <input-reset-switch.component>
         ;+  ;/("")
       ==
       ;label(for "is-public-checkbox"): Public
     ==
-    ;br;
     ;button
       =class        "bg-green-400 text-white"
       =data-event   "/click/create-squad"
       =data-return  "/create-title-input/value /is-public-checkbox/checked"
-      Create
+      ;+  ;/  "Create"
     ==
   ==
 ::
@@ -94,11 +99,13 @@
   ^-  manx
   =/  gid-str=tape  "{=>(<host.gid> ?>(?=(^ .) t))}_{(trip name.gid)}"
   =/  summary=manx
-    ;summary
-      ;h3(class "inline", data-event "/click/select-squad/{gid-str}"): {(trip title.squad)}
+    ;div
+      =class  ?:(=(gid selected-squad.component) "squad-summary-selected" "squad-summary")
+      =data-event  ?:(=(gid selected-squad.component) "" "/click/select-squad/{gid-str}")
+      ;h3(class "inline"): {(trip title.squad)}
     ==
   =/  content=manx
-    ;div
+    ;div.squad-content
       ;p
         ;span(style "margin-right: 2px;"): id:
         ;span(class "code"): {<host.gid>}/{(trip name.gid)}
@@ -134,12 +141,13 @@
       =size         "30"
       =required     ""
       =placeholder  "My Squad"
+      =data-reset   <input-reset-switch.component>
       ;+  ;/("")
     ==
     ;button
       =data-event  "/click/change-title/{gid-str}"
       =data-return  "/{input-id}/value"
-      Change
+      ;+  ;/  "Change"
     ==
   ==
 ::
@@ -160,14 +168,14 @@
       ;button
         =class       "bg-red text-white" 
         =data-event  "/click/delete-squad/{gid-str}"
-        Delete
+        ;+  ;/  "Delete"
       ==
     ==
   ;div(class "leave-form")
     ;button
       =class       "bg-red text-white" 
       =data-event  "/click/leave-squad/{gid-str}"
-      Leave
+      ;+  ;/  "Leave"
     ==
   ==
 ::
@@ -191,6 +199,7 @@
         =size         "30"
         =required     ""
         =placeholder  "~sampel-palnet"
+        =data-reset   <input-reset-switch.component>
         ;+  ;/("")
       ==
       ;button

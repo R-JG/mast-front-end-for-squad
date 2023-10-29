@@ -89,8 +89,10 @@
         ?~  u-gid  !!
         ?:  =(our.bol host.u.u-gid)  !!
         =^  cards  state  
-          =.  status-message.component  "successfully joined squad: {(trip name.u.u-gid)}"
-            (handle-action %join u.u-gid)
+          =:  status-message.component  "joined: {(trip name.u.u-gid)}"
+              input-reset-switch.component  !input-reset-switch.component
+              ==
+          (handle-action %join u.u-gid)
         =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
@@ -100,8 +102,10 @@
         =/  pub=(unit @t)  (~(get by data.client-poke) '/is-public-checkbox/checked')
         =/  is-pub=?  ?~(pub %.n ?:(=('true' u.pub) %.y %.n))
         =^  cards  state
-          =.  status-message.component  "successfully created squad: {(trip title)}"
-            (handle-action %new title is-pub)
+          =:  status-message.component  "created: {(trip title)}"
+              input-reset-switch.component  !input-reset-switch.component
+              ==
+          (handle-action %new title is-pub)
         =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
@@ -114,7 +118,11 @@
         =/  u-title=(unit title)  
           (~(get by data.client-poke) (crip "/change-title-input-{(trip i.t.t.tags.client-poke)}/value")) 
         ?~  u-title  !!
-        =^  cards  state  (handle-action %title u.u-gid u.u-title)
+        =^  cards  state  
+          =:  status-message.component  "changed title to: {(trip u.u-title)}"
+              input-reset-switch.component  !input-reset-switch.component
+              ==
+          (handle-action %title u.u-gid u.u-title)
         =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
@@ -125,7 +133,9 @@
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
         ?.  =(our.bol host.u.u-gid)  !!
-        =^  cards  state  (handle-action %del u.u-gid)
+        =^  cards  state  
+          =.  status-message.component  "deleted squad: {(trip name.u.u-gid)}"
+          (handle-action %del u.u-gid)
         =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
@@ -136,7 +146,9 @@
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
         ?:  =(our.bol host.u.u-gid)  !!
-        =^  cards  state  (handle-action %leave u.u-gid)
+        =^  cards  state  
+          =.  status-message.component  "left squad: {(trip name.u.u-gid)}"
+        (handle-action %leave u.u-gid)
         =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
@@ -158,7 +170,11 @@
           ;~(pfix sig fed:ag)
         ?~  u-ship  !!
         ?:  =(u.u-ship our.bol)  !!
-        =^  cards  state  (handle-action %kick u.u-gid u.u-ship)
+        =^  cards  state  
+          =:  status-message.component  "kicked: {(trip u.u-ship)} from: {(trip name.u.u-gid)}"
+              input-reset-switch.component  !input-reset-switch.component
+              ==
+          (handle-action %kick u.u-gid u.u-ship)
         =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
@@ -179,7 +195,11 @@
           %+  ifix  [(star ace) (star ace)]
           ;~(pfix sig fed:ag)
         ?~  u-ship  !!
-        =^  cards  state  (handle-action %allow u.u-gid u.u-ship)
+        =^  cards  state  
+          =:  status-message.component  "allowed: {(trip u.u-ship)} into: {(trip name.u.u-gid)}"
+              input-reset-switch.component  !input-reset-switch.component
+              ==
+          (handle-action %allow u.u-gid u.u-ship)
         =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
@@ -190,7 +210,9 @@
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
         ?.  =(our.bol host.u.u-gid)  !!
-        =^  cards  state  (handle-action %pub u.u-gid)
+        =^  cards  state
+          =.  status-message.component  "made: {(trip name.u.u-gid)} public"
+          (handle-action %pub u.u-gid)
         =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
@@ -201,7 +223,9 @@
           ;~(plug fed:ag ;~(pfix cab sym))
         ?~  u-gid  !!
         ?.  =(our.bol host.u.u-gid)  !!
-        =^  cards  state  (handle-action %priv u.u-gid)
+        =^  cards  state
+          =.  status-message.component  "made: {(trip name.u.u-gid)} private"
+          (handle-action %priv u.u-gid)
         =/  rigged-sail  (rig:mast yards current-url [bol squads acls members component])
         :_  state(display rigged-sail)
         (weld cards (gust:mast /display-updates display.state rigged-sail))
