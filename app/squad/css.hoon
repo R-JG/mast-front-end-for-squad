@@ -2,11 +2,9 @@
 '''
 body { 
   box-sizing: border-box;
-  width: 100vw;
-  height: 100vh;
   padding: 4rem;
   margin: 0;
-  overflow: scroll;
+  overflow: auto;
   display: flex; 
   flex-direction: column;
   justify-content: center; 
@@ -14,7 +12,6 @@ body {
   font-family: "Inter", sans-serif;
 }
 main {
-  height: 100%;
   width: 100%;
   padding-top: 3rem;
   display: flex;

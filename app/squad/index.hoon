@@ -37,7 +37,7 @@
   ?~  txt  ;div;
   ;div.status-modal
     ;+  ;/  txt
-    ;button(data-event "/click/close-status-modal"): ×
+    ;button(event "/click/close-status-modal"): ×
   ==
 ::
 ++  join-component
@@ -47,13 +47,13 @@
       =id           "join-gid-input"
       =class        "code"
       =placeholder  "~sampel-palnet/squad-name"
-      =data-reset   <input-reset-switch.component>
+      =reset   <input-reset-switch.component>
       ;+  ;/("")
     ==
     ;button
       =class        "bg-green-400 text-white" 
-      =data-event   "/click/join-squad" 
-      =data-return  "/join-gid-input/value"
+      =event   "/click/join-squad" 
+      =return  "/join-gid-input/value"
       ;+  ;/  "Join"
     ==
   ==
@@ -64,22 +64,22 @@
     ;input
       =id           "create-title-input"
       =placeholder  "My squad"
-      =data-reset   <input-reset-switch.component>
+      =reset   <input-reset-switch.component>
       ;+  ;/("")
     ==
     ;div.new-component-checkbox
       ;input
         =id     "is-public-checkbox"
         =type   "checkbox"
-        =data-reset   <input-reset-switch.component>
+        =reset   <input-reset-switch.component>
         ;+  ;/("")
       ==
       ;label(for "is-public-checkbox"): Public
     ==
     ;button
       =class        "bg-green-400 text-white"
-      =data-event   "/click/create-squad"
-      =data-return  "/create-title-input/value /is-public-checkbox/checked"
+      =event   "/click/create-squad"
+      =return  "/create-title-input/value /is-public-checkbox/checked"
       ;+  ;/  "Create"
     ==
   ==
@@ -91,7 +91,7 @@
   =/  summary=manx
     ;div
       =class  ?:(=(gid selected-squad.component) "squad-summary-selected" "squad-summary")
-      =data-event  ?:(=(gid selected-squad.component) "" "/click/select-squad/{gid-str}")
+      =event  ?:(=(gid selected-squad.component) "" "/click/select-squad/{gid-str}")
       ;h3(class "inline"): {(trip title.squad)}
     ==
   =/  content=manx
@@ -127,12 +127,12 @@
     ;input
       =id           input-id
       =placeholder  "My Squad"
-      =data-reset   <input-reset-switch.component>
+      =reset   <input-reset-switch.component>
       ;+  ;/("")
     ==
     ;button
-      =data-event  "/click/change-title/{gid-str}"
-      =data-return  "/{input-id}/value"
+      =event  "/click/change-title/{gid-str}"
+      =return  "/{input-id}/value"
       ;+  ;/  "Change"
     ==
   ==
@@ -142,8 +142,8 @@
   ^-  manx
   =/  gid-str=tape  "{=>(<host.gid> ?>(?=(^ .) t))}_{(trip name.gid)}"
   ?:  pub.squad
-    ;button(data-event "/click/make-private/{gid-str}"): Make Private
-  ;button(data-event "/click/make-public/{gid-str}"): Make Public
+    ;button(event "/click/make-private/{gid-str}"): Make Private
+  ;button(event "/click/make-public/{gid-str}"): Make Public
 ::
 ++  squad-leave-component
   |=  =gid
@@ -153,14 +153,14 @@
     ;div(class "delete-form")
       ;button
         =class       "bg-red text-white" 
-        =data-event  "/click/delete-squad/{gid-str}"
+        =event  "/click/delete-squad/{gid-str}"
         ;+  ;/  "Delete"
       ==
     ==
   ;div(class "leave-form")
     ;button
       =class       "bg-red text-white" 
-      =data-event  "/click/leave-squad/{gid-str}"
+      =event  "/click/leave-squad/{gid-str}"
       ;+  ;/  "Leave"
     ==
   ==
@@ -181,12 +181,12 @@
       ;input
         =id           kick-allow-input-id
         =placeholder  "~sampel-palnet"
-        =data-reset   <input-reset-switch.component>
+        =reset   <input-reset-switch.component>
         ;+  ;/("")
       ==
       ;button
-        =data-event   "/click/{kick-or-allow}/{gid-str}/form"
-        =data-return  "/{kick-allow-input-id}/value"
+        =event   "/click/{kick-or-allow}/{gid-str}/form"
+        =return  "/{kick-allow-input-id}/value"
         ;+  ;/  ?:(pub.squad "Blacklist" "Whitelist")
       ==
     ==
@@ -218,8 +218,8 @@
   ;div(class "ship-acl-form")
     ;input(type "hidden", name "ship", value <ship>, id kick-allow-input-id);
     ;button
-      =data-event   "/click/{kick-or-allow}/{gid-str}/acl"
-      =data-return  "/{kick-allow-input-id}/value"
+      =event   "/click/{kick-or-allow}/{gid-str}/acl"
+      =return  "/{kick-allow-input-id}/value"
       ;+  ;/  "{(cite:^title ship)} ×"
     ==
   ==

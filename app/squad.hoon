@@ -94,7 +94,7 @@
           (handle-action %join u.u-gid)
         =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
+        [(gust:mast /display-updates display.state rigged-sail) cards]
       [%click %create-squad]
         ?.  (~(has by data.client-poke) '/create-title-input/value')  !!
         =/  title=@t  (~(got by data.client-poke) '/create-title-input/value')
@@ -107,7 +107,7 @@
           (handle-action %new title is-pub)
         =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
+        [(gust:mast /display-updates display.state rigged-sail) cards]
       [%click %change-title]
         ?~  t.t.tags.client-poke  !!
         =/  u-gid=(unit gid)
@@ -124,7 +124,7 @@
           (handle-action %title u.u-gid u.u-title)
         =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
+        [(gust:mast /display-updates display.state rigged-sail) cards]
       [%click %delete-squad]
         ?~  t.t.tags.client-poke  !!
         =/  u-gid=(unit gid)
@@ -137,7 +137,7 @@
           (handle-action %del u.u-gid)
         =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
+        [(gust:mast /display-updates display.state rigged-sail) cards]
       [%click %leave-squad]
         ?~  t.t.tags.client-poke  !!
         =/  u-gid=(unit gid)
@@ -150,7 +150,7 @@
         (handle-action %leave u.u-gid)
         =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
+        [(gust:mast /display-updates display.state rigged-sail) cards]
       [%click %kick]
         ?~  t.t.tags.client-poke  !!
         ?~  t.t.t.tags.client-poke  !!
@@ -176,7 +176,7 @@
           (handle-action %kick u.u-gid u.u-ship)
         =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
+        [(gust:mast /display-updates display.state rigged-sail) cards]
       [%click %allow]
         ?~  t.t.tags.client-poke  !!
         ?~  t.t.t.tags.client-poke  !!
@@ -201,7 +201,7 @@
           (handle-action %allow u.u-gid u.u-ship)
         =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
+        [(gust:mast /display-updates display.state rigged-sail) cards]
       [%click %make-public]
         ?~  t.t.tags.client-poke  !!
         =/  u-gid=(unit gid)
@@ -214,7 +214,7 @@
           (handle-action %pub u.u-gid)
         =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
+        [(gust:mast /display-updates display.state rigged-sail) cards]
       [%click %make-private]
         ?~  t.t.tags.client-poke  !!
         =/  u-gid=(unit gid)
@@ -227,7 +227,7 @@
           (handle-action %priv u.u-gid)
         =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
-        (weld cards (gust:mast /display-updates display.state rigged-sail))
+        [(gust:mast /display-updates display.state rigged-sail) cards]
       [%click %select-squad]
         ?~  t.t.tags.client-poke  !!
         =/  u-gid=(unit gid)
@@ -237,12 +237,12 @@
         =.  selected-squad.component   u.u-gid
         =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
-        (gust:mast /display-updates display.state rigged-sail)
+        [(gust:mast /display-updates display.state rigged-sail) ~]
       [%click %close-status-modal]
         =.  status-message.component  ""
         =/  rigged-sail  (rig:mast yards current-url [bol component squads acls members])
         :_  state(display rigged-sail)
-        (gust:mast /display-updates display.state rigged-sail)
+        [(gust:mast /display-updates display.state rigged-sail) ~]
     ==
   ::
   ++  handle-action
