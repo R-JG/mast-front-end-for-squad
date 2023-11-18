@@ -33,6 +33,6 @@
   ==
 ::
 +$  display  $~([[%html ~] [[%head ~] ~] [[%body ~] ~] ~] manx)
-+$  current-url  @t
++$  current-url  path
 +$  component  [selected-squad=gid status-message=tape input-reset-switch=?]
 --
